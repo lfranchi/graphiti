@@ -27,7 +27,10 @@ class Metric
   def self.get_metrics_list(prefix = Graphiti.settings.metric_prefix)
     url = "#{Graphiti.settings.graphite_base_url}/metrics/index.json"
     puts "Getting #{url}"
-    response = Typhoeus::Request.get(url)
+    response = Typhoeus::Request.get(url,
+                                     :httpauth => Graphiti.settings.graphite_auth,
+                                     :userpwd => Graphiti.settings.graphite_userpw,
+                                     :cainfo => Graphiti.settings.graphite_cert)
     if response.success?
       json = Yajl::Parser.parse(response.body)
       if prefix.nil?
