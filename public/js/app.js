@@ -117,7 +117,6 @@ var app = Sammy('body', function() {
       $list.html('');
       var i = 0, l = metrics.length;
       for (; i < l; i++) {
-        Sammy.log(metrics[i]);
         $li.clone()
         .attr('id', "metric_list_metric_" + i)
         .find('strong').text(metrics[i])
