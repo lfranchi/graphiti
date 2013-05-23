@@ -108,7 +108,18 @@ var app = Sammy('body', function() {
     },
     saveOptions: function(params) {
       var json = this.getEditorJSON();
-      json.options = params;
+      if (!json.options) {
+        json.options = params;
+      } else {
+        // merge params so custom options are not overwritten
+        $.extend(json.options, params || {});
+        // delete unchecked checkbox options, which are not in params
+        $('#graph-options form input:checkbox:not(:checked)').each(
+          function (index, el) {
+            delete json.options[el.name.substring(
+                                        "options[".length, el.name.length - 1)];
+          });
+      }
       this.graphPreview(json);
       this.setEditorJSON(json);
     },
