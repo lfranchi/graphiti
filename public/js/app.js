@@ -139,6 +139,7 @@ var app = Sammy('body', function() {
             ctx.searchMetricsList(val);
           }, 200);
         });
+      ctx.searchMetricsList("");
       $list.delegate('li a', 'click', function(e) {
         e.preventDefault();
         var action = $(this).attr('rel'),
@@ -156,7 +157,7 @@ var app = Sammy('body', function() {
       var url = '/metrics.js';
       url += '?q=' + search;
       if (ctx.app.searching) return;
-      if (search.length > 4) {
+      if (search.length > 4 || search.length == 0) {
         ctx.app.searching = true;
         $empty.hide();
         $loading.show();
