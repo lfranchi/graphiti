@@ -14,8 +14,13 @@ class Metric
   def self.find(match, max = 100)
     match = match.to_s.strip
     matches = []
+    begin
+      pattern = /#{match}/i
+    rescue RegexpError
+      return matches
+    end
     all.each do |m|
-      if m =~ /#{match.strip}/i
+      if m =~ pattern
         matches << m
       end
       break if matches.length > max

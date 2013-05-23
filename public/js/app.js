@@ -160,7 +160,11 @@ var app = Sammy('body', function() {
         ctx.app.searching = true;
         $empty.hide();
         $loading.show();
-        return this.load(url).then(function(metrics) {
+        var options = {error: function() {
+          $loading.hide();
+          ctx.app.searching = false;
+        }};
+        return this.load(url, options).then(function(metrics) {
           var metrics = metrics.metrics;
           $loading.hide();
           if (metrics.length > 0) {
