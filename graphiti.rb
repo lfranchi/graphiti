@@ -32,6 +32,7 @@ class Graphiti < Sinatra::Base
 
   configure do
     set :logging, true
+    set :protection, :except => :http_origin
     Compass.configuration do |config|
       config.project_path = settings.root
       config.sass_dir = File.join(settings.views, 'stylesheets')
