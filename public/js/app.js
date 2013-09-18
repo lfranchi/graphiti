@@ -108,7 +108,18 @@ var app = Sammy('body', function() {
     },
     saveOptions: function(params) {
       var json = this.getEditorJSON();
-      json.options = params;
+      if (!json.options) {
+        json.options = params;
+      } else {
+        // merge params so custom options are not overwritten
+        $.extend(json.options, params || {});
+        // delete unchecked checkbox options, which are not in params
+        $('#graph-options form input:checkbox:not(:checked)').each(
+          function (index, el) {
+            delete json.options[el.name.substring(
+                                        "options[".length, el.name.length - 1)];
+          });
+      }
       this.graphPreview(json);
       this.setEditorJSON(json);
     },
@@ -117,7 +128,6 @@ var app = Sammy('body', function() {
       $list.html('');
       var i = 0, l = metrics.length;
       for (; i < l; i++) {
-        Sammy.log(metrics[i]);
         $li.clone()
         .attr('id', "metric_list_metric_" + i)
         .find('strong').text(metrics[i])
@@ -139,6 +149,7 @@ var app = Sammy('body', function() {
             ctx.searchMetricsList(val);
           }, 200);
         });
+      ctx.searchMetricsList("");
       $list.delegate('li a', 'click', function(e) {
         e.preventDefault();
         var action = $(this).attr('rel'),
@@ -156,11 +167,15 @@ var app = Sammy('body', function() {
       var url = '/metrics.js';
       url += '?q=' + search;
       if (ctx.app.searching) return;
-      if (search.length > 4) {
+      if (search.length > 4 || search.length == 0) {
         ctx.app.searching = true;
         $empty.hide();
         $loading.show();
-        return this.load(url).then(function(metrics) {
+        var options = {error: function() {
+          $loading.hide();
+          ctx.app.searching = false;
+        }};
+        return this.load(url, options).then(function(metrics) {
           var metrics = metrics.metrics;
           $loading.hide();
           if (metrics.length > 0) {
@@ -171,9 +186,6 @@ var app = Sammy('body', function() {
           }
           ctx.app.searching = false;
         });
-      } else {
-        $empty.show();
-        $list.hide();
       }
     },
     addGraphMetric: function(metric) {
